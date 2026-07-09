@@ -1,0 +1,27 @@
+name: Send Daily Routine to Telegram
+
+# daily-routine-telegram.txt 파일이 업데이트되어 main 브랜치에 push되면 자동 실행됩니다.
+# 오른쪽 위 "Actions" 탭에서 수동으로도 실행(workflow_dispatch)할 수 있습니다.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'daily-routine-telegram.txt'
+  workflow_dispatch:
+
+jobs:
+  send-to-telegram:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Send message to Telegram channel
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: "@INVESTING_GYM"
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d parse_mode="HTML" \
+            --data-urlencode text@daily-routine-telegram.txt
